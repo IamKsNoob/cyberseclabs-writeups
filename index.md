@@ -2,7 +2,7 @@
 
 
 ## Nmap Scan 
-As usual, we start off with a nmap scan to discover open ports and its corresponding services runnign on the system.
+As usual, we start off with a nmap scan to discover open ports and its corresponding services running on the system.
 
 ![nmap_scan.PNG](/images/office/Nmap/nmap_scan.PNG)
 
@@ -30,12 +30,14 @@ Since we do not have any credentials or information on SMB, let's turn our atten
 One great tool to enumerate LDAP that is build into Kali Linux is **ldapsearch**.
 ![namingcontexts.PNG](/images/office/LDAP/namingcontexts.PNG)
 <u>ldapsearch -h 172.31.3.2 -x -s base namingcontexts</u>
+
 By running the above command, we get the base DN so that we can do our ldap query later on.
 
 ![dsmith.PNG](/images/office/LDAP/dsmith.PNG)
 ![crhodes.PNG](/images/office/LDAP/crhodes.PNG)
 ![ssmith.PNG](/images/office/LDAP/ssmith.PNG)
 <u>ldapsearch -h 172.31.3.2 -x -b "DC=roast,DC=csl"</u>
+
 Looking at the output above , we discovered 3 users and user **dsmith** has its password in his description. (WelcomeToR04st)
 
 We went back to **enumerate smb** with user **dsmith**'s credentials, however, nothing interesting there.
@@ -49,7 +51,8 @@ From the output, there is an additional non-default user  **roastsvc**.
 Since evil-winrm does not return us a shell as user **dsmith**, let's try some password spraying to see if any other users share the same password as **dsmith**
 ![passwordspraying.PNG](/images/office/kerbrute/passwordspraying.PNG)
 <u>./kerbrute_linux_amd64 passwordspray -v -d roast.csl --dc 172.31.3.2 users.txt WelcomeToR04st</u>
-By password spraying, we discover that user **crhodes** also shares the same password as user **dsmith**. 
+
+Through password spraying, we discover that user **crhodes** also shares the same password as user **dsmith**. 
 
 ## Enumerate users with SPN set
 Let's obtain a shell as user **crhodes** using evil-winrm and at the same time, load [PowerView](https://github.com/PowerShellMafia/PowerSploit) powershell script.
@@ -68,6 +71,7 @@ Since we know that user **roastsvc** is likely vulnerable to kerberoasting, we c
 Once we obtain the TGS, let's crack it with hashcat
 ![cracked_tgs.PNG](/images/office/kerberoast/cracked_tgs.PNG)
 <u>hashcat -m 13100 -a 0 roastsvc_spn /usr/share/wordlists/rockyou.txt</u>
+
 Credentials -> roastsvc:!!!watermelon245
 
 ## Privilege Esclation to SYSTEM
@@ -123,6 +127,7 @@ Lastly, we can dump the NTDS.dit hash file for the Administrator's hash using [s
 	- python secretsdump.py (domain-name)/(user)@(domain-name) -dc-ip 172.31.3.2
 - 2. Get the Administrator's hash
 	![admin_hash.PNG](/images/office/SYSTEM/admin_hash.PNG)
+	
 - 3. PSExec 
 	![psexec.PNG](/images/office/SYSTEM/psexec.PNG)
 	- python psexec.py (domain-name)/user@(domain-name) -hashes (admin-hash) -dc-ip 172.31.3.2 
