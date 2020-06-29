@@ -4,7 +4,7 @@
 ## Nmap Scan 
 As usual, we start off with a nmap scan to discover open ports and its corresponding services runnign on the system.
 
-![73349604a8fada606c18df0f2bb2a237.png](:/1077d4eea06c46fa9137497a699a85f2)
+![nmap_scan.PNG](:/64331b29878a44a5b2bff35dd0613cf5)
 
 From the nmap scan , we see a bunch of open ports, mainly
 - Port 88 : Kerberos
@@ -15,19 +15,20 @@ From the nmap scan , we see a bunch of open ports, mainly
 
 Before we continue, we have to edit our **hosts** file and add the  domain name + IP address 
 
-![209685384c341b2a13bcc6db154cf76c.png](:/7e9af7eeebda45f3ae823d8abe3cf6db)
+![hosts.PNG](:/03b4a89d323946b7a5e5ab63123c624e)
 
 ## SMB Enumeration
 Let's start off by enumerating SMB, to see if we have anonymous access (a.k.a NULL Session).
 
-![639d87e4e1694f8ae37b4cc25f6ea63f.png](:/6c38a486d1e04b48a2172db9ac54f0eb)
+![smbclient.PNG](:/d547e0894893445ab76ea9184d82fc57)
+
 As seen above, no shares were shown/discovered when we login to smb as anonymous 
 
 Since we do not have any credentials or information on SMB, let's turn our attention to LDAP.
 
 ## LDAP Enumeration
 One great tool to enumerate LDAP that is build into Kali Linux is **ldapsearch**.
-![4dd494b148b665de253b7fe1343591e9.png](:/b51447c66b6648e4a138fcc8ab7441c7)
+![namingcontexts.PNG](:/a5526fb85f0d447f93c12e01def8f827)
 <u>ldapsearch -h 172.31.3.2 -x -s base namingcontexts</u>
 By running the above command, we get the base DN so that we can do our ldap query later on.
 
