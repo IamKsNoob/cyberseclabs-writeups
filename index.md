@@ -111,7 +111,7 @@ From here, we found out that user **roastsvc** has **GenericWrite** to group **D
 - **GenericWrite** : Provides write access to all properties
 
 Since user **roastsvc** has **GenericWrite** permission to the **Domain Admins** group, we can simply just add user **roastsvc** into the **Domain Admins** group.
-- 1. List all current members of **Domain Admins** group
+- 1) List all current members of **Domain Admins** group
 	![original_DA_members.PNG](/images/office/SYSTEM/original_DA_members.PNG)
 	- net group (group-name) /domain
 - 2. Add user **roastsvc** into **Domain Admins** group
@@ -128,7 +128,7 @@ Lastly, we can dump the NTDS.dit hash file for the Administrator's hash using [s
 - 2. Get the Administrator's hash
 	![admin_hash.PNG](/images/office/SYSTEM/admin_hash.PNG)
 	
--  3. PSExec 
+- 3. PSExec 
 	![psexec.PNG](/images/office/SYSTEM/psexec.PNG)
 	- python psexec.py (domain-name)/user@(domain-name) -hashes (admin-hash) -dc-ip 172.31.3.2 
 
